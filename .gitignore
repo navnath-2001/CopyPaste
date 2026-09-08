@@ -1,0 +1,23 @@
+# Android
+.gradle/
+build/
+**/build/
+.idea/
+*.iml
+local.properties
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+build/
+dist/
+
+# Python/Firebase secrets
+serviceAccountKey.json
+firebase-service-account.json
+*-firebase-adminsdk-*.json
+
+# General secret JSON files
+*service-account*.json

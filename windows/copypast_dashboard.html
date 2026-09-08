@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CopyPast — Clipboard Dashboard</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: rgba(255,255,255,.88);
+      --text: #172033;
+      --muted: #718096;
+      --border: #e7ebf2;
+      --purple: #6c4cc7;
+      --purple-dark: #5334ad;
+      --green: #16a36a;
+      --blue: #2878d7;
+      --red: #e05252;
+      --shadow: 0 12px 35px rgba(33, 43, 70, .08);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(108,76,199,.10), transparent 28%),
+        radial-gradient(circle at 90% 10%, rgba(40,120,215,.08), transparent 24%),
+        var(--bg);
+      min-height: 100vh;
+    }
+
+    .app {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 50px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 26px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .logo {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 15px;
+      color: white;
+      background: linear-gradient(135deg, #7b5bd6, #5837b4);
+      box-shadow: 0 10px 25px rgba(108,76,199,.28);
+      font-size: 24px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 25px;
+      letter-spacing: -.5px;
+    }
+
+    .subtitle {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .connection {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px 14px;
+      border: 1px solid #dcefe6;
+      border-radius: 999px;
+      background: #f2fbf7;
+      color: #168458;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #1db978;
+      box-shadow: 0 0 0 5px rgba(29,185,120,.12);
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #171d31, #262044);
+      color: white;
+      border-radius: 26px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      right: -100px;
+      top: -150px;
+      border-radius: 50%;
+      background: rgba(122,91,214,.22);
+    }
+
+    .hero-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 25px;
+      align-items: center;
+    }
+
+    .hero h2 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      letter-spacing: -.7px;
+    }
+
+    .hero p {
+      margin: 0;
+      color: #c5cadb;
+      line-height: 1.6;
+      max-width: 650px;
+    }
+
+    .flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .device {
+      min-width: 120px;
+      padding: 16px 14px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 17px;
+      background: rgba(255,255,255,.07);
+      backdrop-filter: blur(8px);
+    }
+
+    .device-icon { font-size: 28px; }
+    .device-name { margin-top: 6px; font-weight: 700; font-size: 13px; }
+    .arrow { color: #a897e8; font-size: 24px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      backdrop-filter: blur(10px);
+    }
+
+    .card.full { grid-column: 1 / -1; }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 17px;
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-weight: 800;
+      font-size: 16px;
+    }
+
+    .mini-icon {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+      background: #f0ecfb;
+      font-size: 18px;
+    }
+
+    .badge {
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: #edf9f4;
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .clipboard-box {
+      min-height: 150px;
+      padding: 17px;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      background: #fafbfe;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #2d3748;
+      line-height: 1.6;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 13px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .direction {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #475569;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: .18s ease;
+      font-size: 12px;
+    }
+
+    button:hover { transform: translateY(-1px); }
+
+    .primary {
+      color: white;
+      background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+      box-shadow: 0 8px 18px rgba(108,76,199,.2);
+    }
+
+    .secondary {
+      background: #f0f2f7;
+      color: #39445a;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .stat {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      background: #fafbfe;
+    }
+
+    .stat-label { color: var(--muted); font-size: 11px; font-weight: 700; }
+    .stat-value { margin-top: 5px; font-size: 22px; font-weight: 900; }
+
+    .history {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .history-row {
+      display: grid;
+      grid-template-columns: 110px 1fr 120px;
+      gap: 14px;
+      align-items: center;
+      padding: 13px 14px;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      background: #fff;
+    }
+
+    .type {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--purple);
+    }
+
+    .history-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: #39445a;
+      font-size: 13px;
+    }
+
+    .time {
+      text-align: right;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 25px;
+    }
+
+    @media (max-width: 780px) {
+      .hero-grid, .grid { grid-template-columns: 1fr; }
+      .card.full { grid-column: auto; }
+      .history-row { grid-template-columns: 1fr; gap: 5px; }
+      .time { text-align: left; }
+      header { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+
+    <header>
+      <div class="brand">
+        <div class="logo">⧉</div>
+        <div>
+          <h1>CopyPast</h1>
+          <div class="subtitle">Two-way clipboard synchronization dashboard</div>
+        </div>
+      </div>
+
+      <div class="connection">
+        <span class="dot"></span>
+        Firebase Connected
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <h2>Clipboard Sync Center</h2>
+          <p>
+            Monitor clipboard data moving between your laptop and phone.
+            Both directions can remain active at the same time.
+          </p>
+        </div>
+
+        <div class="flow">
+          <div class="device">
+            <div class="device-icon">💻</div>
+            <div class="device-name">Laptop</div>
+          </div>
+
+          <div class="arrow">⇄</div>
+
+          <div class="device">
+            <div class="device-icon">☁️</div>
+            <div class="device-name">Firebase</div>
+          </div>
+
+          <div class="arrow">⇄</div>
+
+          <div class="device">
+            <div class="device-icon">📱</div>
+            <div class="device-name">Phone</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+
+      <article class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <div class="mini-icon">💻</div>
+            Laptop → Phone
+          </div>
+          <span class="badge">ACTIVE</span>
+        </div>
+
+        <div class="clipboard-box" id="laptopText">
+Hello from my laptop
+        </div>
+
+        <div class="meta">
+          <span class="direction">💻 Laptop</span>
+          <span id="laptopTime">Just now</span>
+        </div>
+
+        <div class="btn-row">
+          <button class="primary" onclick="copyText('laptopText')">Copy Data</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <div class="mini-icon">📱</div>
+            Phone → Laptop
+          </div>
+          <span class="badge">ACTIVE</span>
+        </div>
+
+        <div class="clipboard-box" id="phoneText">
+Hello from my phone
+        </div>
+
+        <div class="meta">
+          <span class="direction">📱 Phone</span>
+          <span id="phoneTime">Just now</span>
+        </div>
+
+        <div class="btn-row">
+          <button class="primary" onclick="copyText('phoneText')">Copy Data</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <div class="mini-icon">📊</div>
+            Sync Overview
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">CONNECTION</div>
+            <div class="stat-value">Online</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">DIRECTIONS</div>
+            <div class="stat-value">2 / 2</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">STATUS</div>
+            <div class="stat-value">Live</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <div class="mini-icon">☁️</div>
+            Firebase Data
+          </div>
+          <span class="badge">LIVE</span>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">DATABASE</div>
+            <div class="stat-value" style="font-size:15px;">clipboard</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">DOCUMENTS</div>
+            <div class="stat-value">2</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">MODE</div>
+            <div class="stat-value" style="font-size:15px;">Two-way</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card full">
+        <div class="card-head">
+          <div class="card-title">
+            <div class="mini-icon">🕘</div>
+            Recent Clipboard Activity
+          </div>
+          <button class="secondary" onclick="clearHistory()">Clear View</button>
+        </div>
+
+        <div class="history" id="history">
+          <div class="history-row">
+            <div class="type">LAPTOP → PHONE</div>
+            <div class="history-text">Hello from my laptop</div>
+            <div class="time">Just now</div>
+          </div>
+
+          <div class="history-row">
+            <div class="type">PHONE → LAPTOP</div>
+            <div class="history-text">Hello from my phone</div>
+            <div class="time">1 min ago</div>
+          </div>
+        </div>
+      </article>
+
+    </section>
+
+    <footer>
+      CopyPast • Two-way clipboard synchronization
+    </footer>
+  </main>
+
+  
+    <script type="module">
+
+    // ============================================
+    // FIREBASE
+    // ============================================
+
+    import { initializeApp }
+        from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+
+    import {
+        getFirestore,
+        doc,
+        onSnapshot
+    } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+
+    // ============================================
+    // YOUR FIREBASE CONFIG
+    // ============================================
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyawleCmMHAyUb2JS0744CCSJh_pgkzOP2Q",
+        authDomain: "clipboard-eee5b.firebaseapp.com",
+        projectId: "clipboard-eee5b",
+        storageBucket: "clipboard-eee5b.firebasestorage.app",
+        messagingSenderId: "145189540028",
+        appId: "1:145189540028:web:3d81a4c0c31533765540b9",
+        measurementId: "G-BQJNT2NEP"
+    };
+
+
+    // ============================================
+    // CONNECT TO FIREBASE
+    // ============================================
+
+    const app = initializeApp(firebaseConfig);
+
+    // IMPORTANT:
+    // Your Firestore database is named "clipboard"
+    const db = getFirestore(app, "clipboard");
+
+
+    // ============================================
+    // LAPTOP → PHONE
+    // ============================================
+
+    const laptopToPhone = doc(
+        db,
+        "clipboard",
+        "laptop_to_phone"
+    );
+
+    onSnapshot(
+        laptopToPhone,
+        (snapshot) => {
+
+            if (!snapshot.exists()) {
+                document.getElementById("laptopText").textContent =
+                    "No data yet";
+
+                return;
+            }
+
+            const data = snapshot.data();
+
+            document.getElementById("laptopText").textContent =
+                data.text || "No text";
+
+            document.getElementById("laptopTime").textContent =
+                formatTime(data.timestamp);
+
+            addHistory(
+                "LAPTOP → PHONE",
+                data.text,
+                data.timestamp
+            );
+        },
+
+        (error) => {
+
+            console.error(
+                "Laptop → Phone error:",
+                error
+            );
+
+            document.getElementById("laptopText").textContent =
+                "Firebase error: " + error.message;
+        }
+    );
+
+
+    // ============================================
+    // PHONE → LAPTOP
+    // ============================================
+
+    const phoneToLaptop = doc(
+        db,
+        "clipboard",
+        "phone_to_laptop"
+    );
+
+    onSnapshot(
+        phoneToLaptop,
+        (snapshot) => {
+
+            if (!snapshot.exists()) {
+                document.getElementById("phoneText").textContent =
+                    "No data yet";
+
+                return;
+            }
+
+            const data = snapshot.data();
+
+            document.getElementById("phoneText").textContent =
+                data.text || "No text";
+
+            document.getElementById("phoneTime").textContent =
+                formatTime(data.timestamp);
+
+            addHistory(
+                "PHONE → LAPTOP",
+                data.text,
+                data.timestamp
+            );
+        },
+
+        (error) => {
+
+            console.error(
+                "Phone → Laptop error:",
+                error
+            );
+
+            document.getElementById("phoneText").textContent =
+                "Firebase error: " + error.message;
+        }
+    );
+
+
+    // ============================================
+    // TIME
+    // ============================================
+
+    function formatTime(timestamp) {
+
+        if (!timestamp) {
+            return "Just now";
+        }
+
+        let date;
+
+        if (
+            typeof timestamp === "object" &&
+            timestamp.toDate
+        ) {
+            date = timestamp.toDate();
+        } else {
+            date = new Date(timestamp * 1000);
+        }
+
+        return date.toLocaleString();
+    }
+
+
+    // ============================================
+    // COPY BUTTON
+    // ============================================
+
+    window.copyText = function(id) {
+
+        const text =
+            document.getElementById(id).innerText.trim();
+
+        navigator.clipboard.writeText(text)
+            .then(() => {
+
+                alert("Copied to clipboard!");
+
+            })
+            .catch((error) => {
+
+                console.error(
+                    "Copy error:",
+                    error
+                );
+
+            });
+    };
+
+
+    // ============================================
+    // HISTORY
+    // ============================================
+
+    window.addHistory = function(
+        direction,
+        text,
+        timestamp
+    ) {
+
+        const history =
+            document.getElementById("history");
+
+        // Don't add unlimited duplicates
+        const existing =
+            history.querySelector(
+                `[data-direction="${direction}"]`
+            );
+
+        if (existing) {
+            existing.remove();
+        }
+
+        const row =
+            document.createElement("div");
+
+        row.className = "history-row";
+
+        row.dataset.direction = direction;
+
+        row.innerHTML = `
+            <div class="type">
+                ${direction}
+            </div>
+
+            <div class="history-text">
+                ${escapeHtml(text || "")}
+            </div>
+
+            <div class="time">
+                ${formatTime(timestamp)}
+            </div>
+        `;
+
+        history.prepend(row);
+    };
+
+
+    // ============================================
+    // SECURITY FOR DISPLAYED TEXT
+    // ============================================
+
+    function escapeHtml(text) {
+
+        return String(text)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    // ============================================
+    // CLEAR HISTORY DISPLAY
+    // ============================================
+
+    window.clearHistory = function() {
+
+        document.getElementById("history").innerHTML =
+            '<div style="color:#718096;font-size:13px;padding:10px 0;">No activity displayed.</div>';
+    };
+
+</script>
+    const firebaseConfig = {
+  apiKey: "AIzaSyCwaleMrHAyu2bJS0744CCSJh_pgkzOP2Q",
+  authDomain: "clipboard-eee5b.firebaseapp.com",
+  projectId: "clipboard-eee5b",
+  storageBucket: "clipboard-eee5b.firebasestorage.app",
+  messagingSenderId: "145189540028",
+  appId: "1:145189540028:web:3d81a4a0c31533765540b9",
+  measurementId: "G-BQJTNT2NEP"
+};
+  </script>
+  
+</body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "145189540028",
+    "project_id": "clipboard-eee5b",
+    "storage_bucket": "clipboard-eee5b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:145189540028:android:6d06d3940e928d1c5540b9",
+        "android_client_info": {
+          "package_name": "com.example.copypast"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3b2Pu033LezDQ54ZnOuJ3TLl3r1gpBh8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
