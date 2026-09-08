@@ -10,11 +10,15 @@ permissions:
 
 jobs:
 
+  # ==========================================
+  # BUILD ANDROID APK
+  # ==========================================
   android:
     name: Build Android APK
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout project
         uses: actions/checkout@v4
 
@@ -45,11 +49,15 @@ jobs:
           path: CopyPast.apk
 
 
+  # ==========================================
+  # BUILD WINDOWS EXE
+  # ==========================================
   windows:
     name: Build Windows EXE
     runs-on: windows-latest
 
     steps:
+
       - name: Checkout project
         uses: actions/checkout@v4
 
@@ -76,6 +84,9 @@ jobs:
           path: windows/dist/CopyPast.exe
 
 
+  # ==========================================
+  # CREATE GITHUB RELEASE
+  # ==========================================
   release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
@@ -85,6 +96,13 @@ jobs:
       - windows
 
     steps:
+
+      # IMPORTANT:
+      # This checkout fixes:
+      # "fatal: not a git repository"
+      - name: Checkout project
+        uses: actions/checkout@v4
+
       - name: Download Android APK
         uses: actions/download-artifact@v4
         with:
@@ -96,6 +114,14 @@ jobs:
         with:
           name: CopyPast-Windows
           path: windows
+
+      - name: Check downloaded files
+        run: |
+          echo "Android files:"
+          ls -lah android
+
+          echo "Windows files:"
+          ls -lah windows
 
       - name: Create GitHub Release
         env:
