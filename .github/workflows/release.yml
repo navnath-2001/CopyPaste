@@ -10,9 +10,9 @@ permissions:
 
 jobs:
 
-  # ==========================================
+  # ============================================================
   # BUILD ANDROID APK
-  # ==========================================
+  # ============================================================
   android:
     name: Build Android APK
     runs-on: ubuntu-latest
@@ -42,6 +42,10 @@ jobs:
         run: |
           cp android/app/build/outputs/apk/debug/app-debug.apk CopyPast.apk
 
+      - name: Check APK
+        run: |
+          ls -lh CopyPast.apk
+
       - name: Upload Android APK
         uses: actions/upload-artifact@v4
         with:
@@ -49,9 +53,9 @@ jobs:
           path: CopyPast.apk
 
 
-  # ==========================================
+  # ============================================================
   # BUILD WINDOWS EXE
-  # ==========================================
+  # ============================================================
   windows:
     name: Build Windows EXE
     runs-on: windows-latest
@@ -70,12 +74,29 @@ jobs:
         working-directory: windows
         run: |
           python -m pip install --upgrade pip
-          pip install firebase-admin pyperclip pyinstaller
+          pip install firebase-admin
+          pip install requests
+          pip install pyperclip
+          pip install keyring
+          pip install Pillow
+          pip install pystray
+          pip install pywin32
+          pip install pyinstaller
+
+      - name: Check Python syntax
+        working-directory: windows
+        run: |
+          python -m py_compile sync_clipboard.py
 
       - name: Build CopyPast EXE
         working-directory: windows
         run: |
           python -m PyInstaller --onefile --noconsole --exclude-module PyQt5 --exclude-module PySide6 --name CopyPast sync_clipboard.py
+
+      - name: Check EXE
+        working-directory: windows
+        run: |
+          dir dist
 
       - name: Upload Windows EXE
         uses: actions/upload-artifact@v4
@@ -84,9 +105,9 @@ jobs:
           path: windows/dist/CopyPast.exe
 
 
-  # ==========================================
+  # ============================================================
   # CREATE GITHUB RELEASE
-  # ==========================================
+  # ============================================================
   release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
@@ -97,9 +118,6 @@ jobs:
 
     steps:
 
-      # IMPORTANT:
-      # This checkout fixes:
-      # "fatal: not a git repository"
       - name: Checkout project
         uses: actions/checkout@v4
 
@@ -130,5 +148,6 @@ jobs:
           gh release create "${{ github.ref_name }}" \
             android/CopyPast.apk \
             windows/CopyPast.exe \
+            --repo "${{ github.repository }}" \
             --title "CopyPast ${{ github.ref_name }}" \
             --generate-notes
