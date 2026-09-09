@@ -1,3 +1,4 @@
+
 package com.example.copypast
 
 import android.content.ClipData
@@ -95,9 +96,9 @@ private const val LAPTOP_TO_PHONE = "laptop_to_phone"
 private const val PHONE_TO_LAPTOP = "phone_to_laptop"
 private const val CHUNK_SIZE = 350_000
 private const val GITHUB_LATEST_API =
-    "https://api.github.com/repos/navnath-2001/CopyPast/releases/latest"
+    "https://api.github.com/repos/navnath-2001/CopyPaste/releases/latest"
 private const val GITHUB_RELEASES_URL =
-    "https://github.com/navnath-2001/CopyPast/releases/latest"
+    "https://github.com/navnath-2001/CopyPaste/releases/latest"
 
 private val Blue = Color(0xFF2563EB)
 private val Navy = Color(0xFF0F172A)
@@ -514,6 +515,20 @@ fun ClipboardScreen(auth: FirebaseAuth) {
     val context = LocalContext.current
     val db = remember { FirebaseFirestore.getInstance(FIRESTORE_DATABASE) }
     val uid = auth.currentUser?.uid ?: return
+
+    LaunchedEffect(uid) {
+        db.collection("users")
+            .document(uid)
+            .collection("session")
+            .document("status")
+            .set(
+                mapOf(
+                    "loggedIn" to true,
+                    "device" to "Phone",
+                    "timestamp" to System.currentTimeMillis()
+                )
+            )
+    }
 
     var selectedTab by remember { mutableIntStateOf(0) }
     var isSyncEnabled by remember { mutableStateOf(true) }
@@ -2351,3 +2366,4 @@ private fun isNewerVersion(
 
     return false
 }
+
