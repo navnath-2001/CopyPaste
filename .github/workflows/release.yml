@@ -44,6 +44,7 @@ jobs:
 
       - name: Check APK
         run: |
+          echo "Android APK:"
           ls -lh CopyPast.apk
 
       - name: Upload Android APK
@@ -91,11 +92,12 @@ jobs:
       - name: Build CopyPast EXE
         working-directory: windows
         run: |
-          python -m PyInstaller --onefile --noconsole --exclude-module PyQt5 --exclude-module PySide6 --name CopyPast sync_clipboard.py
+          python -m PyInstaller --onefile --console --exclude-module PyQt5 --exclude-module PySide6 --name CopyPast sync_clipboard.py
 
       - name: Check EXE
         working-directory: windows
         run: |
+          echo "Windows EXE:"
           dir dist
 
       - name: Upload Windows EXE
