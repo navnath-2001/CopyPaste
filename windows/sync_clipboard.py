@@ -264,6 +264,12 @@ def find_service_account():
             )
         )
 
+    # Stable local credential folder used by CopyPast.
+    # This credential must stay outside the EXE and outside GitHub.
+    folders.append(
+        r"D:\clipboard file"
+    )
+
     # Remove duplicates
     folders = list(
         dict.fromkeys(folders)
